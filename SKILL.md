@@ -27,7 +27,7 @@ what to do next. Claude never talks to the user directly.
 ## How to call
 
 ```bash
-bash ~/.muse/skills/claude-runner/run.sh [--cwd DIR] [--model MODEL] [--timeout SEC] [--edits] "TASK"
+bash ~/workspace/skills/claude-runner/run.sh [--cwd DIR] [--model MODEL] [--timeout SEC] [--edits] "TASK"
 ```
 
 - `TASK` — one self-contained instruction. Include: goal, acceptance criterion,
@@ -64,6 +64,6 @@ CONSTRAINTS: <files not to touch, style rules, no network, etc.>
 ## Example
 
 ```bash
-bash ~/.muse/skills/claude-runner/run.sh --cwd ~/code/myapp --edits \
+bash ~/workspace/skills/claude-runner/run.sh --cwd ~/code/myapp --edits \
 "GOAL: make tests/test_parser.py pass. STOP WHEN: pytest tests/test_parser.py exits 0. EVIDENCE NEEDED: unified diff + pytest output. CONSTRAINTS: do not modify tests."
 ```

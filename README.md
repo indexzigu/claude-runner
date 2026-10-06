@@ -11,7 +11,7 @@ Claude Code CLI (`claude -p`).
 ## Install (inside the agent's VM)
 
 ```bash
-mkdir -p ~/.muse/skills/claude-runner && cd ~/.muse/skills/claude-runner \
+mkdir -p ~/workspace/skills/claude-runner && cd ~/workspace/skills/claude-runner \
   && curl -fsSLO https://raw.githubusercontent.com/indexzigu/claude-runner/main/SKILL.md \
   && curl -fsSLO https://raw.githubusercontent.com/indexzigu/claude-runner/main/run.sh \
   && chmod +x run.sh && sha256sum SKILL.md run.sh
