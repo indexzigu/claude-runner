@@ -25,6 +25,11 @@ while [[ $# -gt 0 ]]; do
     *)         TASK="$1"; shift; break ;;
   esac
 done
+# Options must come BEFORE the task; anything left over would be silently ignored.
+if [[ $# -gt 0 ]]; then
+  echo "run.sh: unexpected arguments after TASK: $*  (put options before the task string)" >&2
+  exit 2
+fi
 
 # Task from stdin if not given as an argument.
 if [[ -z "$TASK" ]]; then
@@ -38,6 +43,10 @@ fi
 # Preflight: binary, directory.
 if ! command -v claude >/dev/null 2>&1; then
   echo "run.sh: 'claude' not found. Install Claude Code first: curl -fsSL https://claude.ai/install.sh | bash" >&2
+  exit 127
+fi
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "run.sh: 'python3' not found; it is needed to parse claude's JSON output" >&2
   exit 127
 fi
 [[ -d "$CWD" ]] || { echo "run.sh: --cwd not a directory: $CWD" >&2; exit 2; }
@@ -68,8 +77,8 @@ set +e
 RC=$?
 set -e
 
-if [[ $RC -eq 124 ]]; then
-  echo "run.sh: timed out after ${TIMEOUT}s. Split the task or raise --timeout." >&2
+if [[ $RC -eq 124 || $RC -eq 137 ]]; then
+  echo "run.sh: timed out after ${TIMEOUT}s (exit $RC). Split the task or raise --timeout." >&2
   [[ -s "$ERR" ]] && cat "$ERR" >&2
   exit 124
 fi
