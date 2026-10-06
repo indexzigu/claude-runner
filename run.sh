@@ -72,6 +72,7 @@ set +e
     --model "$MODEL" \
     --permission-mode "$PERMISSION_MODE" \
     --output-format json \
+    --allowedTools Bash \
     </dev/null >"$OUT" 2>"$ERR"
 )
 RC=$?
