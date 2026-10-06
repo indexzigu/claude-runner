@@ -37,7 +37,8 @@ bash ~/workspace/skills/claude-runner/run.sh [--cwd DIR] [--model MODEL] [--time
 - `--model MODEL` — e.g. `sonnet` (default, cheaper) or `opus`.
 - `--timeout SEC` — kill after N seconds (default 900).
 - `--edits` — allow Claude to edit files in `--cwd` without prompting. Omit for
-  read-only analysis/review (safer default).
+  read-only analysis/review (safer default). Claude still cannot run commands;
+  see "Fix loop" below for how tests get run.
 
 Output: Claude's final answer as plain text on stdout. Exit code 0 on success.
 
@@ -51,6 +52,24 @@ Output: Claude's final answer as plain text on stdout. Exit code 0 on success.
   - timeout → task too big; split it.
 - Never report a result as verified unless the evidence Claude returned (diff,
   test output) is actually present. If Claude says it ran tests, re-run them.
+
+## Fix loop for coding tasks (Muse runs it, do this by default)
+
+Claude cannot run commands (no shell access, by design). When the task's STOP WHEN
+is a command passing (tests, build, lint), Muse closes the loop itself:
+
+1. Call claude-runner with `--edits` and the task contract.
+2. Muse runs the STOP WHEN command itself in `--cwd` and captures stdout/stderr + exit code.
+3. Exit 0 -> done. Report Claude's answer plus Muse's own command output as evidence.
+4. Non-zero -> call claude-runner again with `--edits`, same `--cwd`, and a task of the form:
+   `GOAL: make <command> pass. Previous attempt failed with: <last 60 lines of output>.
+   STOP WHEN: <command> exits 0. CONSTRAINTS: <same as before>.`
+5. Repeat at most **3 rounds** in total. After round 3, stop and report to the user:
+   what was tried, the last failure output, and which files changed. Do not keep going.
+
+Do not ask the user between rounds; the loop is pre-approved. Stop early and ask
+only if Claude proposes deleting files, touching paths outside `--cwd`, or changing
+the test itself to make it pass.
 
 ## Contract to put in every TASK
 
