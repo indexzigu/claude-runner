@@ -40,6 +40,12 @@ if [[ -z "$TASK" ]]; then
 fi
 [[ -n "${TASK//[[:space:]]/}" ]] || { echo "run.sh: task is empty" >&2; exit 2; }
 
+# Non-login shells (e.g. an agent's exec tool) often lack the install dir on PATH.
+for d in "$HOME/.local/bin" "$HOME/.claude/local" "$HOME/.npm-global/bin" "/usr/local/bin"; do
+  case ":$PATH:" in *":$d:"*) ;; *) [[ -d "$d" ]] && PATH="$d:$PATH" ;; esac
+done
+export PATH
+
 # Preflight: binary, directory.
 if ! command -v claude >/dev/null 2>&1; then
   echo "run.sh: 'claude' not found. Install Claude Code first: curl -fsSL https://claude.ai/install.sh | bash" >&2
